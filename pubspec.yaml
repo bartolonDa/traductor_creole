@@ -29,13 +29,18 @@ dev_dependencies:
   flutter_lints: ^6.0.0
 
 flutter:
+  # Las líneas de abajo deben tener exactamente 2 espacios de sangría
   uses-material-design: true
+  
+  # La sección de assets debe estar alineada con uses-material-design
   assets:
     - .env
+    - assets/images/google_logo.png # <--- Ahora está perfectamente alineado con el guion de arriba
+    - assets/images/icon_app.png   # <--- Necesario para que funcione flutter_launcher_icons
 
-
+# Esta sección debe estar al mismo nivel que 'flutter:' (sin espacios al inicio)
 flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/images/icon_app.png"
-  remove_alpha_ios: true # Recomendado para iOS
+  remove_alpha_ios: true
