@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "273045977025",
+    "project_id": "creole-626b2",
+    "storage_bucket": "creole-626b2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:273045977025:android:58a6ca0173c6fabcf26140",
+        "android_client_info": {
+          "package_name": "com.example.traductor_creole"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "273045977025-ai8kotsic52da165tib10k6lcbeos7fm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDwVRkq9Ird26eV9IhhnxEx11ShrtHItcQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "273045977025-ai8kotsic52da165tib10k6lcbeos7fm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
