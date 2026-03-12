@@ -10,4 +10,8 @@ class TraduccionService {
     final data = await DatabaseHelper.instance.getAllTraducciones();
     return data.map((e) => Traduccion.fromMap(e)).toList();
   }
+
+  Future<void> limpiarTraducciones() async {
+    // Por implementar cuando tengas database_helper.dart
+  }
 }
