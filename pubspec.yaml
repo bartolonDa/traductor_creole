@@ -34,11 +34,13 @@ flutter:
   assets:
     - .env
     - assets/images/google_logo.png
-    - assets/images/icon_app.png
     - assets/images/logo_app2.png
+    - assets/images/logo_app.png
 
 flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/images/logo_app2.png"
   remove_alpha_ios: true
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/logo_app2.png"
