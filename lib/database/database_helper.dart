@@ -4,7 +4,6 @@ import 'package:path/path.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
-
   static Database? _database;
 
   DatabaseHelper._init();
@@ -18,7 +17,6 @@ class DatabaseHelper {
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-
     return await openDatabase(path, version: 1, onCreate: _createDB);
   }
 
@@ -37,11 +35,17 @@ class DatabaseHelper {
 
   Future<List<Map<String, dynamic>>> getAllTraducciones() async {
     final db = await instance.database;
-    return await db.query('traducciones');
+    return await db.query('traducciones', orderBy: 'id DESC');
   }
 
   Future<int> insertTraduccion(Map<String, dynamic> row) async {
     final db = await instance.database;
     return await db.insert('traducciones', row);
+  }
+
+  // ── NUEVO: borra todas las traducciones ──
+  Future<void> deleteAllTraducciones() async {
+    final db = await instance.database;
+    await db.delete('traducciones');
   }
 }

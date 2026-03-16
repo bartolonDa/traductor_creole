@@ -11,7 +11,8 @@ class TraduccionService {
     return data.map((e) => Traduccion.fromMap(e)).toList();
   }
 
+  // ── NUEVO: limpia todo el historial ──
   Future<void> limpiarTraducciones() async {
-    // Por implementar cuando tengas database_helper.dart
+    await DatabaseHelper.instance.deleteAllTraducciones();
   }
 }

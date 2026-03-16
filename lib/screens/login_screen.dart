@@ -38,14 +38,10 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
-  // ── TU LÓGICA ORIGINAL DE GOOGLE (sin cambios) ──
   void _handleGoogleLogin() async {
     setState(() => _isLoading = true);
-
     final user = await AuthService().signInWithGoogle();
-
     setState(() => _isLoading = false);
-
     if (user != null) {
       if (!mounted) return;
       Navigator.pushReplacement(
@@ -63,7 +59,6 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
-  // ── LOGIN CON EMAIL (igual que antes) ──
   void _handleEmailLogin() {
     Navigator.pushReplacement(
       context,
@@ -93,17 +88,20 @@ class _LoginScreenState extends State<LoginScreen>
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
 
-                // ── LOGO ANIMADO ──
+                // ── LOGO REAL ANIMADO ──
                 AnimatedBuilder(
                   animation: _floatAnim,
                   builder: (_, child) => Transform.translate(
                     offset: Offset(0, _floatAnim.value),
                     child: child,
                   ),
-                  child: SizedBox(
-                    width: 200,
-                    height: 115,
-                    child: CustomPaint(painter: _LogoPainter()),
+                  child: Image.asset(
+                    'assets/images/logo_app2.png',
+                    width: 240,
+                    height: 140,
+                    fit: BoxFit.contain,
+                    color: null,
+                    colorBlendMode: BlendMode.dst,
                   ),
                 ),
 
@@ -113,7 +111,6 @@ class _LoginScreenState extends State<LoginScreen>
                 const Text(
                   'Proyecto Criollo',
                   style: TextStyle(
-                    fontFamily: 'Fraunces',
                     fontSize: 30,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF1C1917),
@@ -210,7 +207,7 @@ class _LoginScreenState extends State<LoginScreen>
 
                 const SizedBox(height: 16),
 
-                // ── BOTÓN GOOGLE — TU LÓGICA ORIGINAL INTACTA ──
+                // ── BOTÓN GOOGLE ──
                 SizedBox(
                   width: double.infinity,
                   child: _isLoading
@@ -231,7 +228,6 @@ class _LoginScreenState extends State<LoginScreen>
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              // Tu imagen local que ya tienes en assets
                               Image.asset(
                                 'assets/images/google_logo.png',
                                 height: 22,
@@ -273,7 +269,6 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                   ],
                 ),
-
               ],
             ),
           ),
@@ -320,117 +315,4 @@ class _LoginScreenState extends State<LoginScreen>
       ),
     );
   }
-}
-
-// ════════════════════════════════════
-// LOGO — Infinito con manos entrelazadas
-// ════════════════════════════════════
-class _LogoPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final w = size.width;
-    final h = size.height;
-    final paint = Paint()..style = PaintingStyle.fill;
-    final strokePaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = h * 0.075
-      ..strokeCap = StrokeCap.round;
-
-    // C izquierda — Haití azul
-    paint.color = const Color(0xFF1B3A8C);
-    final leftC = Path()
-      ..moveTo(w * 0.40, h * 0.07)
-      ..cubicTo(w * 0.25, h * 0.07, w * 0.11, h * 0.22, w * 0.06, h * 0.43)
-      ..cubicTo(w * 0.03, h * 0.55, w * 0.05, h * 0.70, w * 0.14, h * 0.82)
-      ..cubicTo(w * 0.22, h * 0.93, w * 0.34, h * 1.00, w * 0.40, h * 1.00)
-      ..lineTo(w * 0.40, h * 0.88)
-      ..cubicTo(w * 0.33, h * 0.85, w * 0.24, h * 0.78, w * 0.20, h * 0.68)
-      ..cubicTo(w * 0.15, h * 0.56, w * 0.15, h * 0.44, w * 0.20, h * 0.34)
-      ..cubicTo(w * 0.25, h * 0.23, w * 0.33, h * 0.17, w * 0.40, h * 0.17)
-      ..close();
-    canvas.drawPath(leftC, paint);
-
-    // Arco rojo Haití
-    paint.color = const Color(0xFFCE1126);
-    final redArc = Path()
-      ..moveTo(w * 0.40, h * 0.07)
-      ..lineTo(w * 0.40, h * 0.17)
-      ..cubicTo(w * 0.34, h * 0.17, w * 0.28, h * 0.20, w * 0.23, h * 0.25)
-      ..lineTo(w * 0.17, h * 0.12)
-      ..cubicTo(w * 0.23, h * 0.08, w * 0.31, h * 0.07, w * 0.40, h * 0.07)
-      ..close();
-    canvas.drawPath(redArc, paint);
-
-    // C derecha — Verde Latam
-    paint.color = const Color(0xFF1A7A3A);
-    final rightC = Path()
-      ..moveTo(w * 0.60, h * 0.07)
-      ..cubicTo(w * 0.75, h * 0.07, w * 0.89, h * 0.22, w * 0.94, h * 0.43)
-      ..cubicTo(w * 0.97, h * 0.55, w * 0.95, h * 0.70, w * 0.86, h * 0.82)
-      ..cubicTo(w * 0.78, h * 0.93, w * 0.66, h * 1.00, w * 0.60, h * 1.00)
-      ..lineTo(w * 0.60, h * 0.88)
-      ..cubicTo(w * 0.67, h * 0.85, w * 0.76, h * 0.78, w * 0.80, h * 0.68)
-      ..cubicTo(w * 0.85, h * 0.56, w * 0.85, h * 0.44, w * 0.80, h * 0.34)
-      ..cubicTo(w * 0.75, h * 0.23, w * 0.67, h * 0.17, w * 0.60, h * 0.17)
-      ..close();
-    canvas.drawPath(rightC, paint);
-
-    // Arco dorado
-    paint.color = const Color(0xFFD4820A);
-    final goldArc = Path()
-      ..moveTo(w * 0.60, h * 0.07)
-      ..lineTo(w * 0.60, h * 0.17)
-      ..cubicTo(w * 0.66, h * 0.17, w * 0.72, h * 0.20, w * 0.77, h * 0.25)
-      ..lineTo(w * 0.83, h * 0.12)
-      ..cubicTo(w * 0.77, h * 0.08, w * 0.69, h * 0.07, w * 0.60, h * 0.07)
-      ..close();
-    canvas.drawPath(goldArc, paint);
-
-    // Franja negra
-    paint.color = const Color(0xFF111111);
-    canvas.drawRect(
-        Rect.fromLTWH(w * 0.60, h * 0.45, w * 0.28, h * 0.14), paint);
-
-    // Arco rojo inferior
-    paint.color = const Color(0xFFC0392B);
-    final redBottom = Path()
-      ..moveTo(w * 0.60, h * 1.00)
-      ..lineTo(w * 0.60, h * 0.88)
-      ..cubicTo(w * 0.66, h * 0.85, w * 0.72, h * 0.82, w * 0.77, h * 0.77)
-      ..lineTo(w * 0.83, h * 0.90)
-      ..cubicTo(w * 0.77, h * 0.96, w * 0.69, h * 1.00, w * 0.60, h * 1.00)
-      ..close();
-    canvas.drawPath(redBottom, paint);
-
-    // Conectores del infinito
-    strokePaint.color = const Color(0xFF1A7A3A);
-    canvas.drawArc(Rect.fromLTWH(w * 0.28, h * 0.00, w * 0.44, h * 0.35),
-        3.14, 3.14, false, strokePaint);
-    strokePaint.color = const Color(0xFFCE1126);
-    canvas.drawArc(Rect.fromLTWH(w * 0.28, h * 0.70, w * 0.44, h * 0.35),
-        0, 3.14, false, strokePaint);
-
-    // Manos entrelazadas
-    paint.color = const Color(0xFF6B3E26);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(
-            Rect.fromLTWH(w * 0.30, h * 0.42, w * 0.22, h * 0.18),
-            const Radius.circular(8)),
-        paint);
-    paint.color = const Color(0xFFC4956A);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(
-            Rect.fromLTWH(w * 0.48, h * 0.42, w * 0.22, h * 0.18),
-            const Radius.circular(8)),
-        paint);
-    paint.color = const Color(0xFF7A4F32);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(
-            Rect.fromLTWH(w * 0.38, h * 0.42, w * 0.24, h * 0.18),
-            const Radius.circular(8)),
-        paint);
-  }
-
-  @override
-  bool shouldRepaint(_) => false;
 }
