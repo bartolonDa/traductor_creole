@@ -31,7 +31,9 @@ class _AppRootState extends State<AppRoot> {
         useMaterial3: true,
         brightness: Brightness.dark,
         colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF3B82F6), brightness: Brightness.dark),
+          seedColor: const Color(0xFF3B82F6),
+          brightness: Brightness.dark,
+        ),
         scaffoldBackgroundColor: const Color(0xFF111318),
       ),
       themeMode: _isDark ? ThemeMode.dark : ThemeMode.light,
@@ -63,7 +65,9 @@ class _MainShellState extends State<MainShell> {
     final navBg = isDark ? const Color(0xFF1E2230) : Colors.white;
     final border = isDark ? const Color(0xFF2D3348) : const Color(0xFFE2DED6);
     const selected = Color(0xFF2563EB);
-    final unselected = isDark ? const Color(0xFF6B7280) : const Color(0xFFA8A29E);
+    final unselected = isDark
+        ? const Color(0xFF6B7280)
+        : const Color(0xFFA8A29E);
 
     return Scaffold(
       body: IndexedStack(
@@ -87,7 +91,7 @@ class _MainShellState extends State<MainShell> {
               color: Colors.black.withOpacity(0.06),
               blurRadius: 12,
               offset: const Offset(0, -2),
-            )
+            ),
           ],
         ),
         child: SafeArea(
@@ -95,10 +99,34 @@ class _MainShellState extends State<MainShell> {
             height: 60,
             child: Row(
               children: [
-                _navItem(0, Icons.translate_rounded, 'Traducir', selected, unselected),
-                _navItem(1, Icons.chat_bubble_outline_rounded, 'Frases', selected, unselected),
-                _navItem(2, Icons.history_rounded, 'Historial', selected, unselected),
-                _navItem(3, Icons.person_outline_rounded, 'Perfil', selected, unselected),
+                _navItem(
+                  0,
+                  Icons.translate_rounded,
+                  'Traducir',
+                  selected,
+                  unselected,
+                ),
+                _navItem(
+                  1,
+                  Icons.chat_bubble_outline_rounded,
+                  'Frases',
+                  selected,
+                  unselected,
+                ),
+                _navItem(
+                  2,
+                  Icons.history_rounded,
+                  'Historial',
+                  selected,
+                  unselected,
+                ),
+                _navItem(
+                  3,
+                  Icons.person_outline_rounded,
+                  'Perfil',
+                  selected,
+                  unselected,
+                ),
               ],
             ),
           ),
@@ -107,11 +135,26 @@ class _MainShellState extends State<MainShell> {
     );
   }
 
-  Widget _navItem(int index, IconData icon, String label, Color selected, Color unselected) {
+  Widget _navItem(
+    int index,
+    IconData icon,
+    String label,
+    Color selected,
+    Color unselected,
+  ) {
     final isActive = _currentIndex == index;
     return Expanded(
       child: GestureDetector(
-        onTap: () => setState(() => _currentIndex = index),
+        onTap: () {
+          setState(() {
+            _currentIndex = index;
+          });
+
+          if (index == 2) {
+            // historial
+            HistoryScreenStateNotifier.reload?.call();
+          }
+        },
         behavior: HitTestBehavior.opaque,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

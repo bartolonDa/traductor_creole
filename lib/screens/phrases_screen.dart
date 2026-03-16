@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/traduccion.dart';
-import '../services/traduccion_service.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 class PhrasesScreen extends StatefulWidget {
   const PhrasesScreen({super.key});
@@ -10,27 +9,32 @@ class PhrasesScreen extends StatefulWidget {
 }
 
 class _PhrasesScreenState extends State<PhrasesScreen> {
-  final TraduccionService _service = TraduccionService();
-  List<Traduccion> _lista = [];
-  bool _loading = true;
+  final FlutterTts _tts = FlutterTts();
 
-  @override
-  void initState() {
-    super.initState();
-    _cargar();
-  }
+  // Frases temporales (luego vendrán de SQLite)
+  final List<Map<String, String>> frases = [
+    {"es": "Hola", "ht": "Bonjou"},
+    {"es": "Buenos días", "ht": "Bon maten"},
+    {"es": "Buenas tardes", "ht": "Bon apremidi"},
+    {"es": "Buenas noches", "ht": "Bon nwit"},
+    {"es": "Gracias", "ht": "Mesi"},
+    {"es": "Por favor", "ht": "Tanpri"},
+    {"es": "¿Cuánto cuesta?", "ht": "Konbyen sa koute?"},
+    {"es": "Necesito ayuda", "ht": "Mwen bezwen èd"},
+    {"es": "¿Dónde está el hospital?", "ht": "Ki kote lopital la ye?"},
+    {"es": "¿Habla español?", "ht": "Èske ou pale panyòl?"},
+  ];
 
-  Future<void> _cargar() async {
-    final data = await _service.obtenerTraducciones();
-    setState(() {
-      _lista = data;
-      _loading = false;
-    });
+  Future speak(String text) async {
+    await _tts.setLanguage("fr-FR");
+    await _tts.setPitch(1);
+    await _tts.speak(text);
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final bg = isDark ? const Color(0xFF111318) : const Color(0xFFF5F3EF);
     final surface = isDark ? const Color(0xFF1E2230) : Colors.white;
     final border = isDark ? const Color(0xFF2D3348) : const Color(0xFFE2DED6);
@@ -41,12 +45,14 @@ class _PhrasesScreenState extends State<PhrasesScreen> {
       backgroundColor: bg,
       body: Column(
         children: [
-          // ── HEADER ──
+          // HEADER
           Container(
             color: surface,
             padding: EdgeInsets.only(
               top: MediaQuery.of(context).padding.top + 4,
-              left: 16, right: 16, bottom: 14,
+              left: 16,
+              right: 16,
+              bottom: 14,
             ),
             child: Row(
               children: [
@@ -54,16 +60,22 @@ class _PhrasesScreenState extends State<PhrasesScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Mis Frases',
-                          style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w700,
-                              color: text)),
-                      Text('Frases que usas con frecuencia',
-                          style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: text3)),
+                      Text(
+                        'Frases útiles',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          color: text,
+                        ),
+                      ),
+                      Text(
+                        'Toca una frase para escucharla',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: text3,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -71,101 +83,100 @@ class _PhrasesScreenState extends State<PhrasesScreen> {
               ],
             ),
           ),
+
           Divider(height: 1, color: border),
 
-          // ── LISTA ──
           Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _lista.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.chat_bubble_outline_rounded,
-                                size: 56, color: text3.withOpacity(.4)),
-                            const SizedBox(height: 12),
-                            Text(
-                              'Aún no tienes frases guardadas.\n¡Empieza a traducir para verlas aquí!',
-                              style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: text3),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
+            child: ListView.builder(
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
+              itemCount: frases.length,
+              itemBuilder: (_, i) {
+                final item = frases[i];
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: surface,
+                      border: Border.all(color: border),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(.04),
+                          blurRadius: 8,
+                          offset: const Offset(0, 1),
                         ),
-                      )
-                    : RefreshIndicator(
-                        onRefresh: _cargar,
-                        child: ListView.builder(
-                          padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
-                          itemCount: _lista.length,
-                          itemBuilder: (_, i) {
-                            final item = _lista[i];
-                            final f1 = item.idiomaOrigen == "ES" ? '🇲🇽' : '🇭🇹';
-                            final f2 = item.idiomaDestino == "ES" ? '🇲🇽' : '🇭🇹';
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: Container(
-                                padding: const EdgeInsets.all(14),
-                                decoration: BoxDecoration(
-                                  color: surface,
-                                  border: Border.all(color: border),
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.black.withOpacity(.04),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 1))
-                                  ],
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(item.textoOriginal,
-                                              style: TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w800,
-                                                  color: text)),
-                                          const SizedBox(height: 3),
-                                          Text(item.textoTraducido,
-                                              style: const TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Color(0xFF2563EB))),
-                                          const SizedBox(height: 6),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 3),
-                                            decoration: BoxDecoration(
-                                              color: const Color(0xFFEFF4FF),
-                                              borderRadius:
-                                                  BorderRadius.circular(100),
-                                            ),
-                                            child: Text('$f1 → $f2',
-                                                style: const TextStyle(
-                                                    fontSize: 11,
-                                                    fontWeight: FontWeight.w700,
-                                                    color: Color(0xFF2563EB))),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Icon(Icons.volume_up_outlined,
-                                        color: text3, size: 20),
-                                  ],
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item["es"]!,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                  color: text,
                                 ),
                               ),
-                            );
+
+                              const SizedBox(height: 3),
+
+                              Text(
+                                item["ht"]!,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF2563EB),
+                                ),
+                              ),
+
+                              const SizedBox(height: 6),
+
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEFF4FF),
+                                  borderRadius: BorderRadius.circular(100),
+                                ),
+                                child: const Text(
+                                  '🇲🇽 → 🇭🇹',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF2563EB),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(width: 8),
+
+                        IconButton(
+                          icon: Icon(
+                            Icons.volume_up_outlined,
+                            color: text3,
+                            size: 22,
+                          ),
+                          onPressed: () {
+                            speak(item["ht"]!);
                           },
                         ),
-                      ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),
