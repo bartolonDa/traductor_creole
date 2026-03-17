@@ -1,17 +1,27 @@
 # traductor_creole
 
-A new Flutter project.
+Aplicación Flutter para traducción Creole.
 
-## Getting Started
+## Build Android optimizado en tamaño
 
-This project is a starting point for a Flutter application.
+Para reducir el tamaño de descarga en Android:
 
-A few resources to get you started if this is your first Flutter project:
+- El proyecto usa `minify` + `shrinkResources` en release.
+- El proyecto genera APKs por arquitectura (ABI splits), evitando incluir binarios nativos no usados.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+Comandos recomendados:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+# Opción recomendada para Play Store (descarga dinámica por dispositivo)
+flutter build appbundle --release
+
+# Si necesitas APK directo, genera uno por arquitectura
+flutter build apk --release --split-per-abi
+```
+
+## Desarrollo
+
+```bash
+flutter pub get
+flutter run
+```
