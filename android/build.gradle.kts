@@ -1,3 +1,5 @@
+// Archivo: android/build.gradle.kts (Raíz)
+
 allprojects {
     repositories {
         google()
@@ -15,6 +17,7 @@ subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
+
 subprojects {
     project.evaluationDependsOn(":app")
 }
@@ -23,7 +26,8 @@ tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
 
+// ── LIMPIEZA DE PLUGINS ──
 plugins {
-    // ... otros plugins
-    id("com.google.gms.google-services") version "4.4.1" apply false
+    // Eliminamos o comentamos la línea de google-services
+    // id("com.google.gms.google-services") version "4.4.1" apply false 
 }

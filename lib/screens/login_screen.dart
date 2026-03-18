@@ -39,12 +39,26 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
+  // ── MANEJO DE LOGIN CON AUTH0 ──
   void _handleGoogleLogin() async {
     setState(() => _isLoading = true);
-    final user = await AuthService().signInWithGoogle();
+    
+    // Ahora devuelve Credentials? de Auth0 en lugar de User?
+    final credentials = await AuthService().signInWithGoogle();
+    
     setState(() => _isLoading = false);
-    if (user != null) {
+
+    if (credentials != null) {
       if (!mounted) return;
+      
+      // Mensaje de bienvenida opcional usando el nombre de Auth0
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("¡Bienvenido, ${credentials.user.name}!"),
+          backgroundColor: Colors.green,
+        ),
+      );
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const AppRoot()),
@@ -54,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            "No se pudo iniciar sesión con Google. Revisa tu conexión.",
+            "No se pudo completar la autenticación. Revisa la configuración.",
           ),
           backgroundColor: Colors.redAccent,
         ),
@@ -62,6 +76,8 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
+  // Nota: Para el login por email, Auth0 requiere una implementación distinta.
+  // Por ahora lo mandamos al AppRoot para que no se bloquee tu flujo.
   void _handleEmailLogin() {
     Navigator.pushReplacement(
       context,
@@ -95,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // ── LOGO REAL ANIMADO ──
+                    // ── LOGO ANIMADO ──
                     AnimatedBuilder(
                       animation: _floatAnim,
                       builder: (_, child) => Transform.translate(
@@ -107,14 +123,11 @@ class _LoginScreenState extends State<LoginScreen>
                         width: 240,
                         height: 140,
                         fit: BoxFit.contain,
-                        color: null,
-                        colorBlendMode: BlendMode.dst,
                       ),
                     ),
 
                     const SizedBox(height: 16),
 
-                    // ── TÍTULO ──
                     const Text(
                       'Proyecto Criollo',
                       style: TextStyle(
@@ -138,7 +151,6 @@ class _LoginScreenState extends State<LoginScreen>
 
                     const SizedBox(height: 32),
 
-                    // ── CAMPO EMAIL ──
                     _buildField(
                       controller: _emailController,
                       hint: 'Correo electrónico',
@@ -146,14 +158,12 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                     const SizedBox(height: 12),
 
-                    // ── CAMPO CONTRASEÑA ──
                     _buildField(
                       controller: _passwordController,
                       hint: 'Contraseña',
                       obscure: true,
                     ),
 
-                    // ── OLVIDASTE CONTRASEÑA ──
                     Align(
                       alignment: Alignment.centerRight,
                       child: Padding(
@@ -172,7 +182,6 @@ class _LoginScreenState extends State<LoginScreen>
                       ),
                     ),
 
-                    // ── BOTÓN INICIAR SESIÓN ──
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -198,7 +207,6 @@ class _LoginScreenState extends State<LoginScreen>
 
                     const SizedBox(height: 18),
 
-                    // ── DIVISOR ──
                     const Row(
                       children: [
                         Expanded(child: Divider(color: Color(0xFFE2DED6))),
@@ -219,7 +227,7 @@ class _LoginScreenState extends State<LoginScreen>
 
                     const SizedBox(height: 16),
 
-                    // ── BOTÓN GOOGLE ──
+                    // ── BOTÓN GOOGLE (AUTH0) ──
                     SizedBox(
                       width: double.infinity,
                       child: _isLoading
@@ -262,7 +270,6 @@ class _LoginScreenState extends State<LoginScreen>
 
                     const SizedBox(height: 22),
 
-                    // ── REGISTRO ──
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

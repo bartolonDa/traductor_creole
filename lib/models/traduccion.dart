@@ -15,25 +15,46 @@ class Traduccion {
     required this.fecha,
   });
 
+  // Convertir a Map para insertar en SQLite
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'texto_original': textoOriginal,
-      'texto_traducido': textoTraducido,
-      'idioma_origen': idiomaOrigen,
-      'idioma_destino': idiomaDestino,
+      'textoOriginal': textoOriginal, // Coincide con DatabaseHelper
+      'textoTraducido': textoTraducido,
+      'idiomaOrigen': idiomaOrigen,
+      'idiomaDestino': idiomaDestino,
       'fecha': fecha,
     };
   }
 
+  // Crear objeto desde un Map de la base de datos
   factory Traduccion.fromMap(Map<String, dynamic> map) {
     return Traduccion(
-      id: map['id'],
-      textoOriginal: map['texto_original'],
-      textoTraducido: map['texto_traducido'],
-      idiomaOrigen: map['idioma_origen'],
-      idiomaDestino: map['idioma_destino'],
-      fecha: map['fecha'],
+      id: map['id'] as int?,
+      textoOriginal: map['textoOriginal'] ?? '',
+      textoTraducido: map['textoTraducido'] ?? '',
+      idiomaOrigen: map['idiomaOrigen'] ?? '',
+      idiomaDestino: map['idiomaDestino'] ?? '',
+      fecha: map['fecha'] ?? '',
+    );
+  }
+
+  // Método extra para clonar el objeto con cambios (Muy útil)
+  Traduccion copyWith({
+    int? id,
+    String? textoOriginal,
+    String? textoTraducido,
+    String? idiomaOrigen,
+    String? idiomaDestino,
+    String? fecha,
+  }) {
+    return Traduccion(
+      id: id ?? this.id,
+      textoOriginal: textoOriginal ?? this.textoOriginal,
+      textoTraducido: textoTraducido ?? this.textoTraducido,
+      idiomaOrigen: idiomaOrigen ?? this.idiomaOrigen,
+      idiomaDestino: idiomaDestino ?? this.idiomaDestino,
+      fecha: fecha ?? this.fecha,
     );
   }
 }

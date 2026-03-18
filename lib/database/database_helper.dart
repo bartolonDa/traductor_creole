@@ -17,20 +17,61 @@ class DatabaseHelper {
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    
+    // CAMBIO IMPORTANTE: Subimos la versión a 2 y agregamos onUpgrade
+    return await openDatabase(
+      path, 
+      version: 2, 
+      onCreate: _createDB,
+      onUpgrade: _onUpgrade, 
+    );
+  }
+
+  // Si la app detecta una base de datos vieja (v1), la borra y crea la nueva (v2)
+  Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < newVersion) {
+      await db.execute("DROP TABLE IF EXISTS traducciones");
+      await _createDB(db, newVersion);
+    }
   }
 
   Future _createDB(Database db, int version) async {
+    // 1. Creación de la tabla con los nombres EXACTOS de tu modelo
     await db.execute('''
       CREATE TABLE traducciones (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        texto_original TEXT NOT NULL,
-        texto_traducido TEXT NOT NULL,
-        idioma_origen TEXT NOT NULL,
-        idioma_destino TEXT NOT NULL,
+        textoOriginal TEXT NOT NULL,
+        textoTraducido TEXT NOT NULL,
+        idiomaOrigen TEXT NOT NULL,
+        idiomaDestino TEXT NOT NULL,
         fecha TEXT NOT NULL
       )
     ''');
+
+    // 2. DATOS SEMILLA
+    List<Map<String, String>> frasesSemilla = [
+      {"es": "hola", "ht": "Bonjou"},
+      {"es": "¿cómo estás?", "ht": "Kijan ou ye?"},
+      {"es": "necesito ayuda", "ht": "Mwen bezwen èd"},
+      {"es": "¿dónde está el hospital?", "ht": "Kote lopital la ye?"},
+      {"es": "tengo hambre", "ht": "Mwen grangou"},
+      {"es": "gracias", "ht": "Mèsi"},
+      {"es": "ayuda por favor", "ht": "Tanpri ede mwen"},
+      {"es": "¿dónde hay agua?", "ht": "Kote ki gen dlo?"},
+      {"es": "no entiendo", "ht": "Mwen pa konprann"},
+      {"es": "buenos días", "ht": "Bonjou"},
+      {"es": "buenas noches", "ht": "Bonswa"},
+    ];
+
+    for (var frase in frasesSemilla) {
+      await db.insert('traducciones', {
+        'textoOriginal': frase['es']!,
+        'textoTraducido': frase['ht']!,
+        'idiomaOrigen': 'ES',
+        'idiomaDestino': 'HT',
+        'fecha': DateTime.now().toString(),
+      });
+    }
   }
 
   Future<List<Map<String, dynamic>>> getAllTraducciones() async {
@@ -40,10 +81,13 @@ class DatabaseHelper {
 
   Future<int> insertTraduccion(Map<String, dynamic> row) async {
     final db = await instance.database;
-    return await db.insert('traducciones', row);
+    return await db.insert(
+      'traducciones', 
+      row, 
+      conflictAlgorithm: ConflictAlgorithm.replace
+    );
   }
 
-  // ── NUEVO: borra todas las traducciones ──
   Future<void> deleteAllTraducciones() async {
     final db = await instance.database;
     await db.delete('traducciones');

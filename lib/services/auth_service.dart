@@ -1,34 +1,41 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:auth0_flutter/auth0_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  // Inicializamos Auth0 con las variables del .env
+  final Auth0 auth0 = Auth0(
+    dotenv.env['AUTH0_DOMAIN']!,
+    dotenv.env['AUTH0_CLIENT_ID']!,
+  );
 
-  // Función para Google Sign In
-  Future<User?> signInWithGoogle() async {
+  // Reemplaza a signInWithGoogle
+  Future<Credentials?> signInWithGoogle() async {
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return null;
-
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      final UserCredential userCredential = await _auth.signInWithCredential(credential);
-      return userCredential.user;
+      // Usamos el scheme sin guion bajo como configuramos en el panel
+      final credentials = await auth0
+          .webAuthentication(scheme: 'com.example.traductorcreole')
+          .login();
+      
+      return credentials;
     } catch (e) {
-      print("Error en AuthService: $e");
+      print("Error en AuthService (Auth0): $e");
       return null;
     }
   }
 
   // Función para cerrar sesión
   Future<void> signOut() async {
-    await _googleSignIn.signOut();
-    await _auth.signOut();
+    try {
+      await auth0
+          .webAuthentication(scheme: 'com.example.traductorcreole')
+          .logout();
+    } catch (e) {
+      print("Error al cerrar sesión: $e");
+    }
+  }
+
+  // Útil para saber si hay un usuario activo
+  Future<bool> isLoggedIn() async {
+    return await auth0.credentialsManager.hasValidCredentials();
   }
 }
