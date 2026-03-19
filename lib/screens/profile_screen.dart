@@ -22,38 +22,58 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _offline = true;
   bool _saveHist = true;
 
+  // 1. Declaramos la variable del usuario y el cliente
+  User? _currentUser;
   final _supabase = Supabase.instance.client;
-  User? get _user => _supabase.auth.currentUser;
 
-  // ── FUNCIÓN DE CIERRE DE SESIÓN CORREGIDA ──
+  @override
+  void initState() {
+    super.initState();
+    // 2. Cargamos el usuario actual al iniciar
+    _currentUser = _supabase.auth.currentUser;
+
+    // ESCÁNER PARA LA TERMINAL
+    debugPrint("=== ESCÁNER DE INICIO ===");
+    debugPrint("ID: ${_currentUser?.id}");
+    debugPrint("Email: ${_currentUser?.email}");
+    debugPrint("Metadata: ${_currentUser?.userMetadata}");
+
+    // 3. Escuchamos cambios de sesión en tiempo real
+    _supabase.auth.onAuthStateChange.listen((data) {
+      if (mounted) {
+        setState(() {
+          _currentUser = data.session?.user;
+        });
+        debugPrint("=== CAMBIO DE AUTH DETECTADO ===");
+        debugPrint("Nuevo Usuario: ${_currentUser?.email}");
+      }
+    });
+  }
+
+  // ── FUNCIÓN DE CIERRE DE SESIÓN SEGURO ──
   Future<void> _logout() async {
-    final confirm = await showDialog<bool>(
+    final bool? confirm = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (BuildContext dialogContext) => AlertDialog(
         title: const Text('Cerrar sesión'),
         content: const Text('¿Estás seguro que quieres cerrar sesión?'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false), // Cerramos solo el diálogo
+              onPressed: () => Navigator.pop(dialogContext, false),
               child: const Text('Cancelar')),
           TextButton(
-              onPressed: () => Navigator.pop(context, true), // Confirmamos la acción
+              onPressed: () => Navigator.pop(dialogContext, true),
               child: const Text('Cerrar sesión',
                   style: TextStyle(color: Colors.red))),
         ],
       ),
     );
 
-    // Verificamos si confirmó y si el widget sigue en el árbol (mounted)
     if (confirm == true && mounted) {
       try {
-        // Ejecutamos el cierre de sesión
         await AuthService().signOut();
-        
-        // Volvemos a verificar 'mounted' después de un proceso asíncrono (await)
         if (!mounted) return;
 
-        // Navegamos al login limpiando toda la pila de pantallas anteriores
         Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const LoginScreen()),
           (route) => false,
@@ -66,9 +86,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isGuest = _user == null;
-    final String userName = _user?.userMetadata?['full_name'] ?? "Usuario Invitado";
-    final String? userPhoto = _user?.userMetadata?['avatar_url'];
+    // 4. Búsqueda exhaustiva en metadatos (Google usa varias llaves)
+    final bool isGuest = _currentUser == null;
+    
+    final String userName = _currentUser?.userMetadata?['full_name'] ?? 
+                           _currentUser?.userMetadata?['name'] ?? 
+                           "Usuario Invitado";
+    
+    final String? userPhoto = _currentUser?.userMetadata?['avatar_url'] ?? 
+                             _currentUser?.userMetadata?['picture'];
 
     final isDark = widget.isDark;
     final bg = isDark ? const Color(0xFF111318) : const Color(0xFFF5F3EF);
@@ -108,7 +134,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Center(
                       child: isGuest || userPhoto == null
                           ? const Text('👤', style: TextStyle(fontSize: 45))
-                          : ClipOval(child: Image.network(userPhoto, fit: BoxFit.cover)),
+                          : ClipOval(child: Image.network(
+                              userPhoto, 
+                              fit: BoxFit.cover, 
+                              errorBuilder: (context, error, stackTrace) => const Text('👤', style: TextStyle(fontSize: 45))
+                            )),
                     ),
                   ),
                   const SizedBox(height: 12),

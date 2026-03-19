@@ -59,6 +59,7 @@ class DatabaseHelper {
       {"es": "no entiendo", "ht": "Mwen pa konprann"},
       {"es": "buenos días", "ht": "Bonjou"},
       {"es": "buenas noches", "ht": "Bonswa"},
+      {"es": "hola profesores", "ht": "Bonjou pwofesè yo"},
     ];
 
     for (var frase in frasesSemilla) {
