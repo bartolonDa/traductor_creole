@@ -16,10 +16,11 @@ class Traduccion {
   });
 
   // Convertir a Map para insertar en SQLite
+  // Asegúrate de que los nombres coincidan con tu DatabaseHelper
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'textoOriginal': textoOriginal, // Coincide con DatabaseHelper
+      'textoOriginal': textoOriginal, 
       'textoTraducido': textoTraducido,
       'idiomaOrigen': idiomaOrigen,
       'idiomaDestino': idiomaDestino,
@@ -39,7 +40,7 @@ class Traduccion {
     );
   }
 
-  // Método extra para clonar el objeto con cambios (Muy útil)
+  // Método para clonar el objeto con cambios
   Traduccion copyWith({
     int? id,
     String? textoOriginal,

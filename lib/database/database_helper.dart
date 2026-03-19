@@ -18,7 +18,7 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
     
-    // CAMBIO IMPORTANTE: Subimos la versión a 2 y agregamos onUpgrade
+    // Versión 2 para asegurar que los cambios de columnas se apliquen
     return await openDatabase(
       path, 
       version: 2, 
@@ -27,7 +27,6 @@ class DatabaseHelper {
     );
   }
 
-  // Si la app detecta una base de datos vieja (v1), la borra y crea la nueva (v2)
   Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < newVersion) {
       await db.execute("DROP TABLE IF EXISTS traducciones");
@@ -36,7 +35,6 @@ class DatabaseHelper {
   }
 
   Future _createDB(Database db, int version) async {
-    // 1. Creación de la tabla con los nombres EXACTOS de tu modelo
     await db.execute('''
       CREATE TABLE traducciones (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,7 +46,7 @@ class DatabaseHelper {
       )
     ''');
 
-    // 2. DATOS SEMILLA
+    // Datos semilla para que la app funcione offline desde el inicio
     List<Map<String, String>> frasesSemilla = [
       {"es": "hola", "ht": "Bonjou"},
       {"es": "¿cómo estás?", "ht": "Kijan ou ye?"},
@@ -85,6 +83,16 @@ class DatabaseHelper {
       'traducciones', 
       row, 
       conflictAlgorithm: ConflictAlgorithm.replace
+    );
+  }
+
+  // ── FUNCIÓN PARA BORRAR UNA FILA ESPECÍFICA ──
+  Future<int> deleteTraduccion(int id) async {
+    final db = await instance.database;
+    return await db.delete(
+      'traducciones',
+      where: 'id = ?',
+      whereArgs: [id],
     );
   }
 

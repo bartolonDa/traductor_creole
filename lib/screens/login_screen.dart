@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../services/auth_service.dart';
 import 'app_root.dart';
 
@@ -39,26 +40,19 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
-  // ── MANEJO DE LOGIN CON AUTH0 ──
   void _handleGoogleLogin() async {
     setState(() => _isLoading = true);
-    
-    // Ahora devuelve Credentials? de Auth0 en lugar de User?
     final credentials = await AuthService().signInWithGoogle();
-    
     setState(() => _isLoading = false);
 
     if (credentials != null) {
       if (!mounted) return;
-      
-      // Mensaje de bienvenida opcional usando el nombre de Auth0
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("¡Bienvenido, ${credentials.user.name}!"),
           backgroundColor: Colors.green,
         ),
       );
-
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const AppRoot()),
@@ -67,18 +61,22 @@ class _LoginScreenState extends State<LoginScreen>
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(
-            "No se pudo completar la autenticación. Revisa la configuración.",
-          ),
+          content: Text("No se pudo completar la autenticación."),
           backgroundColor: Colors.redAccent,
         ),
       );
     }
   }
 
-  // Nota: Para el login por email, Auth0 requiere una implementación distinta.
-  // Por ahora lo mandamos al AppRoot para que no se bloquee tu flujo.
   void _handleEmailLogin() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const AppRoot()),
+    );
+  }
+
+  // ── NUEVO: ENTRAR COMO INVITADO (OFFLINE) ──
+  void _handleGuestLogin() {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const AppRoot()),
@@ -101,17 +99,14 @@ class _LoginScreenState extends State<LoginScreen>
           child: SingleChildScrollView(
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                minHeight: MediaQuery.of(context).size.height,
+                minHeight: MediaQuery.of(context).size.height - 50,
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 28,
-                  vertical: 40,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // ── LOGO ANIMADO ──
+                    // LOGO ANIMADO
                     AnimatedBuilder(
                       animation: _floatAnim,
                       builder: (_, child) => Transform.translate(
@@ -125,63 +120,30 @@ class _LoginScreenState extends State<LoginScreen>
                         fit: BoxFit.contain,
                       ),
                     ),
-
                     const SizedBox(height: 16),
-
                     const Text(
                       'Proyecto Criollo',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF1C1917),
-                        letterSpacing: -0.5,
-                      ),
-                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: Color(0xFF1C1917), letterSpacing: -0.5),
                     ),
                     const SizedBox(height: 6),
                     const Text(
                       'Inclusión a través de la comunicación',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF57534E),
-                      ),
-                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF57534E)),
                     ),
-
                     const SizedBox(height: 32),
-
-                    _buildField(
-                      controller: _emailController,
-                      hint: 'Correo electrónico',
-                      keyboardType: TextInputType.emailAddress,
-                    ),
+                    _buildField(controller: _emailController, hint: 'Correo electrónico', keyboardType: TextInputType.emailAddress),
                     const SizedBox(height: 12),
-
-                    _buildField(
-                      controller: _passwordController,
-                      hint: 'Contraseña',
-                      obscure: true,
-                    ),
-
+                    _buildField(controller: _passwordController, hint: 'Contraseña', obscure: true),
                     Align(
                       alignment: Alignment.centerRight,
                       child: Padding(
                         padding: const EdgeInsets.only(top: 8, bottom: 14),
                         child: GestureDetector(
                           onTap: () {},
-                          child: const Text(
-                            '¿Olvidaste tu contraseña?',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF2563EB),
-                            ),
-                          ),
+                          child: const Text('¿Olvidaste tu contraseña?', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF2563EB))),
                         ),
                       ),
                     ),
-
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -190,44 +152,21 @@ class _LoginScreenState extends State<LoginScreen>
                           backgroundColor: const Color(0xFF2563EB),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 17),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         ),
-                        child: const Text(
-                          'Iniciar Sesión',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
+                        child: const Text('Iniciar Sesión', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
                       ),
                     ),
-
                     const SizedBox(height: 18),
-
                     const Row(
                       children: [
                         Expanded(child: Divider(color: Color(0xFFE2DED6))),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(
-                            'O continúa con',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFFA8A29E),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
+                        Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text('O continúa con', style: TextStyle(fontSize: 12, color: Color(0xFFA8A29E), fontWeight: FontWeight.w600))),
                         Expanded(child: Divider(color: Color(0xFFE2DED6))),
                       ],
                     ),
-
                     const SizedBox(height: 16),
-
-                    // ── BOTÓN GOOGLE (AUTH0) ──
+                    // BOTÓN GOOGLE
                     SizedBox(
                       width: double.infinity,
                       child: _isLoading
@@ -236,62 +175,46 @@ class _LoginScreenState extends State<LoginScreen>
                               onPressed: _handleGoogleLogin,
                               style: OutlinedButton.styleFrom(
                                 backgroundColor: Colors.white,
-                                side: const BorderSide(
-                                  color: Color(0xFFE2DED6),
-                                  width: 1.5,
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 15,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
+                                side: const BorderSide(color: Color(0xFFE2DED6), width: 1.5),
+                                padding: const EdgeInsets.symmetric(vertical: 15),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Image.asset(
-                                    'assets/images/google_logo.png',
-                                    height: 22,
-                                  ),
+                                  Image.asset('assets/images/google_logo.png', height: 22),
                                   const SizedBox(width: 12),
-                                  const Text(
-                                    'Continuar con Google',
-                                    style: TextStyle(
-                                      color: Color(0xFF1C1917),
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
+                                  const Text('Continuar con Google', style: TextStyle(color: Color(0xFF1C1917), fontSize: 15, fontWeight: FontWeight.w700)),
                                 ],
                               ),
                             ),
                     ),
-
                     const SizedBox(height: 22),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          '¿No tienes cuenta? ',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Color(0xFFA8A29E),
-                          ),
-                        ),
+                        const Text('¿No tienes cuenta? ', style: TextStyle(fontSize: 13, color: Color(0xFFA8A29E))),
                         GestureDetector(
                           onTap: _handleGoogleLogin,
-                          child: const Text(
-                            'Regístrate gratis',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Color(0xFF2563EB),
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
+                          child: const Text('Regístrate gratis', style: TextStyle(fontSize: 13, color: Color(0xFF2563EB), fontWeight: FontWeight.w700)),
                         ),
                       ],
+                    ),
+                    
+                    // ── BOTÓN DE INVITADO (OFFLINE) ──
+                    const SizedBox(height: 24),
+                    TextButton.icon(
+                      onPressed: _handleGuestLogin,
+                      icon: const Icon(Icons.cloud_off, size: 18, color: Color(0xFF57534E)),
+                      label: const Text(
+                        "Entrar sin conexión (Modo Invitado)",
+                        style: TextStyle(
+                          color: Color(0xFF57534E),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -303,41 +226,17 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  Widget _buildField({
-    required TextEditingController controller,
-    required String hint,
-    bool obscure = false,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
+  Widget _buildField({required TextEditingController controller, required String hint, bool obscure = false, TextInputType keyboardType = TextInputType.text}) {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2DED6), width: 1.5),
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFFE2DED6), width: 1.5)),
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
       child: TextField(
         controller: controller,
         obscureText: obscure,
         keyboardType: keyboardType,
         autocorrect: false,
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: const TextStyle(
-            color: Color(0xFFA8A29E),
-            fontWeight: FontWeight.w400,
-          ),
-          border: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          filled: false,
-          contentPadding: const EdgeInsets.symmetric(vertical: 12),
-        ),
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          color: Color(0xFF1C1917),
-        ),
+        decoration: InputDecoration(hintText: hint, hintStyle: const TextStyle(color: Color(0xFFA8A29E)), border: InputBorder.none, contentPadding: const EdgeInsets.symmetric(vertical: 12)),
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1C1917)),
       ),
     );
   }
