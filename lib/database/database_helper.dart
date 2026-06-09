@@ -17,13 +17,13 @@ class DatabaseHelper {
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-    
+
     // Versión 2 para asegurar que los cambios de columnas se apliquen
     return await openDatabase(
-      path, 
-      version: 2, 
+      path,
+      version: 2,
       onCreate: _createDB,
-      onUpgrade: _onUpgrade, 
+      onUpgrade: _onUpgrade,
     );
   }
 
@@ -57,7 +57,7 @@ class DatabaseHelper {
       {"es": "ayuda por favor", "ht": "Tanpri ede mwen"},
       {"es": "¿dónde hay agua?", "ht": "Kote ki gen dlo?"},
       {"es": "no entiendo", "ht": "Mwen pa konprann"},
-      {"es": "buenos días", "ht": "Bonjou"},
+      {"es": "buenos días", "ht": "Bon matenu"},
       {"es": "buenas noches", "ht": "Bonswa"},
       {"es": "hola profesores", "ht": "Bonjou pwofesè yo"},
     ];
@@ -81,20 +81,16 @@ class DatabaseHelper {
   Future<int> insertTraduccion(Map<String, dynamic> row) async {
     final db = await instance.database;
     return await db.insert(
-      'traducciones', 
-      row, 
-      conflictAlgorithm: ConflictAlgorithm.replace
+      'traducciones',
+      row,
+      conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
   // ── FUNCIÓN PARA BORRAR UNA FILA ESPECÍFICA ──
   Future<int> deleteTraduccion(int id) async {
     final db = await instance.database;
-    return await db.delete(
-      'traducciones',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete('traducciones', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<void> deleteAllTraducciones() async {
