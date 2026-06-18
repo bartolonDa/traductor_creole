@@ -39,4 +39,29 @@ class ApiService {
       return null;
     }
   }
+
+  Future<String?> detectarIdioma({required String texto}) async {
+    final apiKey = dotenv.env['GOOGLE_API_KEY'];
+
+    final url = Uri.parse(
+      "https://translation.googleapis.com/language/detect/v2?key=$apiKey",
+    );
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"q": texto}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data["data"]["detections"][0][0]["language"];
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return null;
+    }
+  }
 }

@@ -73,6 +73,14 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() => _isListening = false);
       _speech.stop();
       if (_spokenText.isNotEmpty) {
+        final idiomaDetectado = await _api.detectarIdioma(texto: _spokenText);
+        if (idiomaDetectado != null && idiomaDetectado != _idiomaActualOrigen) {
+          setState(() {
+            final temp = _idiomaActualOrigen;
+            _idiomaActualOrigen = idiomaDetectado;
+            _idiomaActualDestino = temp;
+          });
+        }
         _procesarTraduccion(_spokenText);
       }
     }
